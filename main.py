@@ -25,7 +25,7 @@ class Test(Enum):
     SPEED_TEST_2 = auto()
 
 
-test = Test.SARSA_ELIGIBILITY  # which test to run
+test = Test.Q_LEARNING  # which test to run
 
 maze = np.array([
     [0, 1, 0, 0, 0, 0, 0, 0],
@@ -55,31 +55,33 @@ if test == Test.RANDOM_MODEL:
 if test == Test.Q_LEARNING:
     game.render(Render.TRAINING)
     model = models.QTableModel(game)
-    h, w, _, _ = model.train(discount=0.90, exploration_rate=0.10, learning_rate=0.10, episodes=200,
+    h, w, _, _ = model.train(discount=0.90, exploration_rate=0.10, learning_rate=0.10, episodes=50,
                              stop_at_convergence=True)
 
 # train using tabular Q-learning and an eligibility trace (aka TD-lambda)
 if test == Test.Q_ELIGIBILITY:
     game.render(Render.TRAINING)
     model = models.QTableTraceModel(game)
-    h, w, _, _ = model.train(discount=0.90, exploration_rate=0.10, learning_rate=0.10, episodes=200,
+    h, w, _, _ = model.train(discount=0.90, exploration_rate=0.10, learning_rate=0.10, episodes=50,
                              stop_at_convergence=True)
 
 # train using tabular SARSA learning
 if test == Test.SARSA:
     game.render(Render.TRAINING)
     model = models.SarsaTableModel(game)
-    h, w, _, _ = model.train(discount=0.90, exploration_rate=0.10, learning_rate=0.10, episodes=200,
+    h, w, _, _ = model.train(discount=0.90, exploration_rate=0.10, learning_rate=0.10, episodes=50,
                              stop_at_convergence=True)
 
 # train using tabular SARSA learning and an eligibility trace
 if test == Test.SARSA_ELIGIBILITY:
-    game.render(Render.TRAINING)  # shows all moves and the q table; nice but slow.
+    # shows all moves and the q table; nice but slow.
+    game.render(Render.TRAINING)
     model = models.SarsaTableTraceModel(game)
-    h, w, _, _ = model.train(discount=0.90, exploration_rate=0.10, learning_rate=0.10, episodes=200,
+    h, w, _, _ = model.train(discount=0.90, exploration_rate=0.10, learning_rate=0.10, episodes=50,
                              stop_at_convergence=True)
 
-# train using a neural network with experience replay (also saves the resulting model)
+# train using a neural network with experience replay (also saves the
+# resulting model)
 if test == Test.DEEP_Q:
     game.render(Render.TRAINING)
     model = models.QReplayNetworkModel(game)
@@ -105,7 +107,8 @@ except NameError:
 if test == Test.LOAD_DEEP_Q:
     model = models.QReplayNetworkModel(game, load=True)
 
-# compare learning speed (cumulative rewards and win rate) of several models in a diagram
+# compare learning speed (cumulative rewards and win rate) of several
+# models in a diagram
 if test == Test.SPEED_TEST_1:
     rhist = list()
     whist = list()
@@ -132,7 +135,8 @@ if test == Test.SPEED_TEST_1:
         whist.append(w)
         names.append(model.name)
 
-    f, (rhist_ax, whist_ax) = plt.subplots(2, len(models_to_run), sharex="row", sharey="row", tight_layout=True)
+    f, (rhist_ax, whist_ax) = plt.subplots(2, len(models_to_run),
+                                           sharex="row", sharey="row", tight_layout=True)
 
     for i in range(len(rhist)):
         rhist_ax[i].set_title(names[i])
@@ -146,7 +150,8 @@ if test == Test.SPEED_TEST_1:
 
     plt.show()
 
-# run a number of training episodes and plot the training time and episodes needed in histograms (time-consuming)
+# run a number of training episodes and plot the training time and
+# episodes needed in histograms (time-consuming)
 if test == Test.SPEED_TEST_2:
     runs = 10
 
@@ -189,7 +194,8 @@ if test == Test.SPEED_TEST_2:
         sec.append(seconds)
         nme.append(model.name)
 
-    f, (epi_ax, sec_ax) = plt.subplots(2, len(models_to_run), sharex="row", sharey="row", tight_layout=True)
+    f, (epi_ax, sec_ax) = plt.subplots(2, len(models_to_run),
+                                       sharex="row", sharey="row", tight_layout=True)
 
     for i in range(len(epi)):
         epi_ax[i].set_title(nme[i])

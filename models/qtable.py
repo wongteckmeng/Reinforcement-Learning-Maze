@@ -72,7 +72,7 @@ class QTableModel(AbstractModel):
                     action = random.choice(self.environment.actions)
                 else:
                     action = self.predict(state)
-
+                # step and get next state
                 next_state, reward, status = self.environment.step(action)
                 next_state = tuple(next_state.flatten())
 
@@ -81,8 +81,8 @@ class QTableModel(AbstractModel):
                 if (state, action) not in self.Q.keys():  # ensure value exists for (state, action) to avoid a KeyError
                     self.Q[(state, action)] = 0.0
 
+                # Q formula
                 max_next_Q = max([self.Q.get((next_state, a), 0.0) for a in self.environment.actions])
-
                 self.Q[(state, action)] += learning_rate * (reward + discount * max_next_Q - self.Q[(state, action)])
 
                 if status in (Status.WIN, Status.LOSE):  # terminal state reached, stop training episode
