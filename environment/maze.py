@@ -1,5 +1,6 @@
 import logging
 from enum import Enum, IntEnum
+from typing import Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -60,7 +61,7 @@ class Maze:
     # penalty for trying to enter an occupied cell or moving out of the maze
     penalty_impossible_move = -0.75
 
-    def __init__(self, maze, start_cell=(0, 0), exit_cell=None):
+    def __init__(self, maze, start_cell=(0, 0), exit_cell=None) -> None:
         """ Create a new maze game.
 
             :param numpy.array maze: 2D array containing empty cells (= 0) and cells occupied with walls (= 1)
@@ -101,7 +102,7 @@ class Maze:
 
         self.reset(start_cell)
 
-    def reset(self, start_cell=(0, 0)):
+    def reset(self, start_cell=(0, 0)) -> np.ndarray:
         """ Reset the maze to its initial state and place the agent at start_cell.
 
             :param tuple start_cell: here the agent starts its journey through the maze (optional, else upper left)
@@ -154,7 +155,7 @@ class Maze:
 
         return self.__observe()
 
-    def __draw(self):
+    def __draw(self) -> None:
         """ Draw a line from the agents previous cell to its current cell. """
         self.__ax1.plot(*zip(*[self.__previous_cell,
                                self.__current_cell]),
@@ -165,7 +166,7 @@ class Maze:
         self.__ax1.get_figure().canvas.draw()
         self.__ax1.get_figure().canvas.flush_events()
 
-    def render(self, content=Render.NOTHING):
+    def render(self, content=Render.NOTHING) -> None:
         """ Record what will be rendered during play and/or training.
 
             :param Render content: NOTHING, TRAINING, MOVES
@@ -182,7 +183,7 @@ class Maze:
         if self.__render == Render.TRAINING:
             if self.__ax2 is None:
                 fig, self.__ax2 = plt.subplots(1, 1, tight_layout=True)
-                fig.canvas.manager.set_window_title("Best move")
+                fig.canvas.manager.set_window_title("Q table")
                 self.__ax2.set_axis_off()
                 self.render_q(None)
         if self.__render in (Render.MOVES, Render.TRAINING):
@@ -252,7 +253,7 @@ class Maze:
 
         return reward
 
-    def __possible_actions(self, cell=None):
+    def __possible_actions(self, cell=None) -> list[Action]:
         """ Create a list with all possible actions from 'cell', avoiding the maze's edges and walls.
 
             :param tuple cell: location of the agent (optional, else use current cell)
@@ -281,7 +282,7 @@ class Maze:
 
         return possible_actions
 
-    def __status(self):
+    def __status(self) -> Literal[Status.WIN, Status.LOSE, Status.PLAYING]:
         """ Return the game status.
 
             :return Status: current game status (WIN, LOSE, PLAYING)
@@ -294,14 +295,15 @@ class Maze:
 
         return Status.PLAYING
 
-    def __observe(self):
+    def __observe(self) -> np.ndarray:
         """ Return the state of the maze - in this game the agents current location.
 
             :return numpy.array [1][2]: agents current location
         """
         return np.array([[*self.__current_cell]])
 
-    def play(self, model, start_cell=(0, 0)):
+    def play(self, model, start_cell=(0, 0)
+             ) -> Literal[Status.WIN, Status.LOSE]:
         """ Play a single game, choosing the next move based a prediction from 'model'.
 
             :param class AbstractModel model: the prediction model to use
@@ -318,7 +320,7 @@ class Maze:
             if status in (Status.WIN, Status.LOSE):
                 return status
 
-    def check_win_all(self, model):
+    def check_win_all(self, model) -> tuple[bool, float]:
         """ Check if the model wins from all possible starting cells. """
         previous = self.__render
         # avoid rendering anything during execution of the check games
@@ -342,13 +344,13 @@ class Maze:
 
         return result, win / (win + lose)
 
-    def render_q(self, model):
+    def render_q(self, model) -> None:
         """ Render the recommended action(s) for each cell as provided by 'model'.
 
         :param class AbstractModel model: the prediction model to use
         """
 
-        def clip(n):
+        def clip(n) -> int:
             return max(min(1, n), 0)
 
         if self.__render == Render.TRAINING:

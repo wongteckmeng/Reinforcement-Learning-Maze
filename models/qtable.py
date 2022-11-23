@@ -18,7 +18,7 @@ class QTableModel(AbstractModel):
     """
     default_check_convergence_every = 5  # by default check for convergence every # episodes
 
-    def __init__(self, game, **kwargs):
+    def __init__(self, game, **kwargs) -> None:
         """ Create a new prediction model for 'game'.
 
         :param class Maze game: Maze game object
@@ -42,10 +42,13 @@ class QTableModel(AbstractModel):
         """
         discount = kwargs.get("discount", 0.90)
         exploration_rate = kwargs.get("exploration_rate", 0.10)
-        exploration_decay = kwargs.get("exploration_decay", 0.995)  # % reduction per step = 100 - exploration decay
+        # % reduction per step = 100 - exploration decay
+        exploration_decay = kwargs.get("exploration_decay", 0.995)
         learning_rate = kwargs.get("learning_rate", 0.10)
         episodes = max(kwargs.get("episodes", 1000), 1)
-        check_convergence_every = kwargs.get("check_convergence_every", self.default_check_convergence_every)
+        check_convergence_every = kwargs.get(
+            "check_convergence_every",
+            self.default_check_convergence_every)
 
         # variables for reporting purposes
         cumulative_reward = 0
@@ -64,10 +67,12 @@ class QTableModel(AbstractModel):
             start_list.remove(start_cell)
 
             state = self.environment.reset(start_cell)
-            state = tuple(state.flatten())  # change np.ndarray to tuple so it can be used as dictionary key
+            # change np.ndarray to tuple so it can be used as dictionary key
+            state = tuple(state.flatten())
 
             while True:
-                # choose action epsilon greedy (off-policy, instead of only using the learned policy)
+                # choose action epsilon greedy (off-policy, instead of only
+                # using the learned policy)
                 if np.random.random() < exploration_rate:
                     action = random.choice(self.environment.actions)
                 else:
@@ -78,14 +83,18 @@ class QTableModel(AbstractModel):
 
                 cumulative_reward += reward
 
-                if (state, action) not in self.Q.keys():  # ensure value exists for (state, action) to avoid a KeyError
+                if (state, action) not in self.Q.keys(
+                ):  # ensure value exists for (state, action) to avoid a KeyError
                     self.Q[(state, action)] = 0.0
 
-                # Q formula
-                max_next_Q = max([self.Q.get((next_state, a), 0.0) for a in self.environment.actions])
-                self.Q[(state, action)] += learning_rate * (reward + discount * max_next_Q - self.Q[(state, action)])
+                # Q formula with TD
+                max_next_Q = max([self.Q.get((next_state, a), 0.0)
+                                 for a in self.environment.actions])
+                self.Q[(state, action)] += learning_rate * (reward +
+                                                            discount * max_next_Q - self.Q[(state, action)])
 
-                if status in (Status.WIN, Status.LOSE):  # terminal state reached, stop training episode
+                if status in (
+                        Status.WIN, Status.LOSE):  # terminal state reached, stop training episode
                     break
 
                 state = next_state
@@ -108,16 +117,22 @@ class QTableModel(AbstractModel):
 
             exploration_rate *= exploration_decay  # explore less as training progresses
 
-        logging.info("episodes: {:d} | time spent: {}".format(episode, datetime.now() - start_time))
+        logging.info(
+            "episodes: {:d} | time spent: {}".format(
+                episode,
+                datetime.now() -
+                start_time))
 
-        return cumulative_reward_history, win_history, episode, datetime.now() - start_time
+        return cumulative_reward_history, win_history, episode, datetime.now() - \
+            start_time
 
-    def q(self, state):
+    def q(self, state) -> np.ndarray:
         """ Get q values for all actions for a certain state. """
-        if type(state) == np.ndarray:
+        if isinstance(state, np.ndarray):
             state = tuple(state.flatten())
 
-        return np.array([self.Q.get((state, action), 0.0) for action in self.environment.actions])
+        return np.array([self.Q.get((state, action), 0.0)
+                        for action in self.environment.actions])
 
     def predict(self, state):
         """ Policy: choose the action with the highest value from the Q-table.
@@ -130,5 +145,6 @@ class QTableModel(AbstractModel):
 
         logging.debug("q[] = {}".format(q))
 
-        actions = np.nonzero(q == np.max(q))[0]  # get index of the action(s) with the max value
+        # get index of the action(s) with the max value
+        actions = np.nonzero(q == np.max(q))[0]
         return random.choice(actions)

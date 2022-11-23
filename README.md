@@ -37,4 +37,35 @@ The table below gives an impression of the relative performance of each of these
 | SarsaTableTraceModel | 10 times | 73.0 | 5.5 sec |
 | QReplayNetworkModel | 10 times | 113.5 | 4 min 48 sec |
 
+
+### Install dependencies
 Requires matplotlib, numpy, keras and tensorflow.
+Conda virtual environment:
+```sh
+conda create --name myenv python=3.10
+conda activate myenv
+conda install --file conda.yml -c conda-forge
+```
+
+As **Conda has limited package support for python 3.10** activate your virtual environment **then** install the dependencies using
+
+```sh
+pip install -r conda.yml
+```
+
+### Run
+
+```sh
+python .\main.py -m Q_LEARNING
+```
+List of model available:
+    SHOW_MAZE_ONLY = auto()
+    RANDOM_MODEL = auto()
+    Q_LEARNING = auto()
+    Q_ELIGIBILITY = auto()
+    SARSA = auto()
+    SARSA_ELIGIBILITY = auto()
+    DEEP_Q = auto()
+    LOAD_DEEP_Q = auto()
+    SPEED_TEST_1 = auto()
+    SPEED_TEST_2 = auto()

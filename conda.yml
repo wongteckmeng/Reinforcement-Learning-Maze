@@ -1,0 +1,22 @@
+name: aiap
+  
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+    - autopep8
+    - ipykernel
+    - pydantic
+    - pytest
+    - pandas
+    - notebook
+    - matplotlib
+    - numpy
+    - jupyterlab 
+    - ipykernel
+    - ipywidgets
+    - tensorflow
+
