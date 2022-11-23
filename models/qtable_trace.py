@@ -22,7 +22,7 @@ class QTableTraceModel(AbstractModel):
     """
     default_check_convergence_every = 5  # by default check for convergence every # episodes
 
-    def __init__(self, game, **kwargs):
+    def __init__(self, game, **kwargs) -> None:
         """ Create a new prediction model for 'game'.
 
         :param class Maze game: Maze game object
@@ -132,7 +132,7 @@ class QTableTraceModel(AbstractModel):
 
         return cumulative_reward_history, win_history, episode, datetime.now() - start_time
 
-    def q(self, state):
+    def q(self, state) -> np.ndarray:
         """ Get q values for all actions for a certain state. """
         if type(state) == np.ndarray:
             state = tuple(state.flatten())
